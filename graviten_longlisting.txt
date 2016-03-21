@@ -1,0 +1,141 @@
+	'RIPOFF OF GRAVATAR: RED PLANET 3
+	dim A$( 96 )
+	A$ = "\04\04\0E\0E\1F\01\03\07\0F\03\01\06\1E\0C\04\01>\1C\18\00 8?8 \18\1C>\01\00\04\0C\1E\06\01\03\0F\07\03\01\1F\0E\0E\04\04\0C\0F\0E\0C\08\04\06\0F\0C\10\06\0E\1F \00\01\07?\07\01 \1F\0E\06\00\10\0C\0F\06\04\08\0C\0E\0F\0C"
+	D2R = 0.39269908
+	dim TRIGTABLE( 1, 15 )
+	for I = 0 to 15
+		TRIGTABLE( 0, I ) = sin( D2R * I )
+		TRIGTABLE( 1, I ) = cos( D2R * I )
+	next I
+	graphics 8
+	graphics 5
+	poke 752, 1
+	'FILL WHOLE SCREEN
+	setcolor 0, 3, 4
+	setcolor 2, 0, 4
+	color 1
+	paint 0, 0
+	color 0
+	MT = 580
+	print "\C7\D2\C1\D6\C9TEN"
+	print "Stand by "; 
+	D2R = 0.0174532925
+	for I = 0 to MT step 9
+		CX = 38 * I / MT * cos( I * D2R ) + 45
+		CY = 25 * I / MT * sin( I * D2R ) + 15
+		for R = 1 to 5
+			circle CX, CY, R
+		next R
+		print "."; 
+	next I
+	cls 
+	color 1
+	plot 0, 0
+	drawto 79, 0
+	plot 19, 39
+	drawto 79, 39
+	color 2
+	circle 46, 15, 1
+	'PM COORDINATES
+	'MIN X=48  $30
+	'MAX X=200 $C8
+	'MIN Y=16  $10
+	'MAX Y=100 $64
+	PM = $AC00
+	move adr( A$ ), PM, 80
+	poke 704, 15
+	poke 54279, PM / 256
+	REM              Tell ANTIC where PM RAM is
+	poke 53277, 3
+	REM                      Enable PM display
+	poke 559, 46
+	REM                     Enable PM DMA with 2-line res
+	'8 LEVELS
+	'5 LIVES
+	'FIRE TO START
+	' IF HIT WALL, LOSE LIFE. IF 0 LIVES, PRINT "SCORE" AND "TRY AGAIN" - RESET SHIP. RESET LIVES. JUMP TO START
+	' IF HIT THE CORE, SCORE!, ADVANCE LEVEL. HAVE TO RESET THE SHIP.
+	' IF LEVELS COMPLETE, PRINT "YOU WON! SCORE" - RESET SHIP. RESET LIVES. JUMP BACK TO FIRE TO START.
+	do 
+		print 
+		print , "press FIRE to start"; 
+		while strig( 0 )
+		wend 
+		cls 
+		SC = 1000
+		LEVEL = 0
+		NL = 5
+		X = 70
+		Y = 18
+		ANGLE = 8
+		VX = 0
+		VY = 0
+		print 
+		print LEVEL, NL; 
+		while NL
+			poke 657, 22
+			print SC; " "; 
+			move PM + $0200, PM + $0201, 127
+			move ANGLE * 5 + PM, PM + $0200 + int( Y ), 5
+			poke 53248, int( X )
+			S0 = S
+			S = stick( 0 )
+			LR = ( S & 4 = 4 ) - ( S & 8 = 8 )
+			DN = ( S0 & 2 = 2 ) & ( S & 2 = 0 )
+			UP = S & 1 = 0
+			ANGLE = ( ANGLE + 16 + LR + 8 * DN ) mod 16
+			if UP
+				sound 0, 250, 10, 10
+				VX = TRIGTABLE( 0, ANGLE ) * 0.05 + VX
+				VY = TRIGTABLE( 1, ANGLE ) * 0.05 + VY
+			endif 
+			if LEVEL mod 2 = 0
+				VX = VX - 0.01 * VX
+				VY = VY - 0.01 * VY
+			endif 
+			' CORE AT 135,44
+			VX = LEVEL div 2 * 1e-005 * ( 135 - X ) + VX
+			VY = VY - LEVEL div 2 * 1e-005 * ( 44 - Y )
+			X = X + VX
+			rem -48 + 152) MOD 152 + 48
+			Y = Y - VY
+			rem -8 + 84) MOD 84 + 8
+			poke 53278, 1
+			pause 1
+			P0PF = peek( 53252 )
+			if P0PF
+				X = 70
+				Y = 18
+				ANGLE = 8
+				VX = 0
+				VY = 0
+				sound 0, 50, P0PF * 8 - 6, 15
+				cls 
+				if P0PF = 1
+					NL = NL - 1
+					if NL = 0
+						print , "TRY AGAIN"
+					endif 
+				endif 
+				if P0PF = 2
+					SC = ( LEVEL + 1 ) * 1000 + SC
+					if LEVEL = 7
+						print , "MISSION COMPLETE!"
+						exit 
+					endif 
+					LEVEL = LEVEL + 1
+					NL = 5
+					setcolor 0, LEVEL * 2 + 3, 4
+					setcolor 2, 0, LEVEL div 2
+				endif 
+				pause 20
+				print 
+				print LEVEL, NL, SC; 
+			endif 
+			sound 0, 0, 0, 0
+			SC = SC - 1
+		wend 
+		print , "SCORE: "; SC
+		pause 20
+		sound 0, 0, 0, 0
+	loop 
