@@ -63,7 +63,7 @@
 		wend 
 		cls 
 		SC = 1000
-		LEVEL = 0
+		LEVEL = 6
 		NL = 5
 		X = 70
 		Y = 18
@@ -110,6 +110,7 @@
 				VX = 0
 				VY = 0
 				sound 0, 50, P0PF * 8 - 6, 15
+				pause 9
 				cls 
 				if P0PF = 1
 					NL = NL - 1
@@ -126,16 +127,14 @@
 					LEVEL = LEVEL + 1
 					NL = 5
 					setcolor 0, LEVEL * 2 + 3, 4
-					setcolor 2, 0, LEVEL div 2
+					setcolor 2, 0, 4 - LEVEL mod 2 * 4
 				endif 
-				pause 20
 				print 
 				print LEVEL, NL, SC; 
 			endif 
 			sound 0, 0, 0, 0
 			SC = SC - 1
 		wend 
-		print , "SCORE: "; SC
-		pause 20
+		print , "SCORE:"; SC
 		sound 0, 0, 0, 0
 	loop 
