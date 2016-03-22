@@ -63,7 +63,7 @@
 		wend 
 		cls 
 		SC = 1000
-		LEVEL = 6
+		LEVEL = 0
 		NL = 5
 		X = 70
 		Y = 18
