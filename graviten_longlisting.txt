@@ -64,7 +64,7 @@
 		cls 
 		SC = 1000
 		LEVEL = 0
-		NL = 5
+		NL = 3
 		X = 70
 		Y = 18
 		ANGLE = 8
@@ -94,8 +94,8 @@
 				VY = VY - 0.01 * VY
 			endif 
 			' CORE AT 135,44
-			VX = LEVEL div 2 * 1e-005 * ( 135 - X ) + VX
-			VY = VY - LEVEL div 2 * 1e-005 * ( 44 - Y )
+			VX = LEVEL div 2 * 2e-005 * ( 135 - X ) + VX
+			VY = VY - LEVEL div 2 * 2e-005 * ( 44 - Y )
 			X = X + VX
 			rem -48 + 152) MOD 152 + 48
 			Y = Y - VY
@@ -125,7 +125,7 @@
 						exit 
 					endif 
 					LEVEL = LEVEL + 1
-					NL = 5
+					NL = NL + 1
 					setcolor 0, LEVEL * 2 + 3, 4
 					setcolor 2, 0, 4 - LEVEL mod 2 * 4
 				endif 
